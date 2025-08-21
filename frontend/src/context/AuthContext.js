@@ -1,60 +1,46 @@
-import React, { createContext, useState, useEffect } from 'react';
-import apiClient from '../api/apiClient';
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import authService from '../service/authService';
+import apiClient from '../apiClient'; 
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCurrentUser = async () => {
-      try {
-        const response = await apiClient.get('/users/me'); // A Devise route to get current user
-        setUser(response.data);
-      } catch (error) {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
+    const checkCurrentUser = async () => {
+      const currentUser = await authService.getCurrentUser();
+      setUser(currentUser);
+      setLoading(false);
     };
-    fetchCurrentUser();
+    checkCurrentUser();
   }, []);
 
   const login = async (credentials) => {
-    try {
-      const response = await apiClient.post('/users/sign_in', { user: credentials });
-      setUser(response.data.user); // Assuming your Devise controller returns user data
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const data = await authService.login(credentials.email, credentials.password);
+    setUser(data.user);
+    return data;
   };
 
   const logout = async () => {
-    try {
-      await apiClient.delete('/users/sign_out');
-      setUser(null);
-    } catch (error) {
-      console.error("Logout failed", error);
-    }
+    await authService.logout();
+    setUser(null);
   };
 
   const signup = async (userData) => {
-    try {
-      const response = await apiClient.post('/users', { user: userData });
-      setUser(response.data.user);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const data = await authService.signup(userData);
+    setUser(data.user);
+    return data;
   };
 
+  const value = { user, login, logout, signup, loading };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, signup, loading }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => React.useContext(AuthContext);
+export const useAuth = () => useContext(AuthContext);
