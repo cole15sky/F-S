@@ -8,4 +8,6 @@ Rails.application.routes.draw do
     sessions: "users/sessions",
     registrations: "users/registrations"
   }
+
+  get '/users/me', to: 'users#me'
 end
