@@ -15,9 +15,6 @@ const App = () => {
       {/* Navbar */}
       <header className="w-full bg-white shadow-sm p-4 sticky top-0 z-50">
         <nav className="flex justify-between items-center max-w-screen-xl mx-auto">
-          <Link to="/" className="text-2xl font-extrabold text-indigo-600">
-            AuthApp
-          </Link>
           <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center space-x-1 text-gray-600 hover:text-indigo-600 transition-colors">
               <HomeIcon size={18} />
